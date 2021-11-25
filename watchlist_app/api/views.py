@@ -6,12 +6,8 @@ from watchlist_app.models import Watchlist, StreamPlatform
 from watchlist_app.api.serializers import WatchlistSerializer,StreamPlatformSerializer
 
 class StreamPlatformAV(APIView):
-    def get(self, request,pk):
-        try:
-            platform = StreamPlatform.objects.all()
-        except StreamPlatform.DoesNotExist:
-            return Response({'Error': 'Not found'}, status = status.HTTP_400_NOT_FOUND)
-        
+    def get(self, request):
+        platform = StreamPlatform.objects.all() 
         serializer = StreamPlatformSerializer(platform, many=True)
         return Response(serializer.data)
 
