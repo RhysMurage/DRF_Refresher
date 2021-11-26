@@ -1,8 +1,16 @@
+from django.db import models
+from django.db.models import fields
 from rest_framework import serializers
-from watchlist_app.models import Watchlist, StreamPlatform
+from watchlist_app.models import Review, Watchlist, StreamPlatform
+
+class ReviewSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Review
+        fields = '__all__'
 
 class WatchlistSerializer(serializers.ModelSerializer):
-    len_name = serializers.SerializerMethodField()
+    reviews = ReviewSerializer(many=True, read_only=True)
 
     class Meta:
         model = Watchlist
@@ -13,14 +21,8 @@ class WatchlistSerializer(serializers.ModelSerializer):
         return length
 
 class StreamPlatformSerializer(serializers.ModelSerializer):
-    # watchlist = WatchlistSerializer(many=True, read_only=True)
-    watchlist = serializers.HyperlinkedRelatedField(
-        many=True,
-        read_only=True,
-        view_name='movie-detail'
-        
-        )
+    watchlist = WatchlistSerializer(many=True, read_only=True)
 
     class Meta:
         model = StreamPlatform
-        fields = '__all__'
+        fields = "__all__"
