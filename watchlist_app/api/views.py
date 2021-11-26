@@ -8,6 +8,8 @@ from watchlist_app.models import Review, Watchlist, StreamPlatform
 from watchlist_app.api.serializers import WatchlistSerializer,StreamPlatformSerializer, ReviewSerializer
 
 
+
+
 class ReviewDetail(mixins.RetrieveModelMixin, generics.GenericAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
