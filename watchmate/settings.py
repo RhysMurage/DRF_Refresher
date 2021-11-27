@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'watchlist_app',
-    'rest_framework'
+    'rest_framework',
+     'rest_framework.authtoken'
 ]
 
 MIDDLEWARE = [
@@ -125,7 +126,10 @@ DEFAULT_AUTO_FIELD = 'django.d.models.BigAutoField'
 
 
 REST_FRAMEWORK = {
+    # 'DEFAULT_PERMISSION_CLASSES': [
+    #     'rest_framework.authentication.BasicAuthentication',
+    # ],
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
     ],
 }
