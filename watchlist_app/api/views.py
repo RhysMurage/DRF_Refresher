@@ -10,7 +10,7 @@ from rest_framework import generics, mixins
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated,IsAuthenticatedOrReadOnly 
 
-from watchlist_app.api.permissions import AdminorReadOnly,ReviewUserorReadOnly
+from watchlist_app.api.permissions import IsAdminorReadOnly,ReviewUserorReadOnly
 from watchlist_app.models import Review, Watchlist, StreamPlatform
 from watchlist_app.api.serializers import WatchlistSerializer,StreamPlatformSerializer, ReviewSerializer
 
@@ -62,6 +62,7 @@ class StreamPlatformVS(viewsets.ModelViewSet):
 
 
 class StreamPlatformAV(APIView):
+    permission_classes = [IsAdminorReadOnly]
     
     def get(self, request):
         platform = StreamPlatform.objects.all() 
@@ -77,6 +78,8 @@ class StreamPlatformAV(APIView):
             return Response(serializer.errors)
 
 class StreamPlatformDetailAV(APIView):
+    permission_classes = [IsAdminorReadOnly]
+
     def get(self, request, pk):
         try:
             platform = StreamPlatform.objects.get(pk=pk)
@@ -102,6 +105,7 @@ class StreamPlatformDetailAV(APIView):
         
 
 class WatchListAV(APIView):
+    permission_classes = [IsAdminorReadOnly]
 
     def get(self, request):
         movies =  Watchlist.objects.all()
@@ -118,6 +122,7 @@ class WatchListAV(APIView):
 
 
 class WatchDetailAV(APIView):
+    permission_classes = [IsAdminorReadOnly]
 
     def get(self, request,pk):
         try:
