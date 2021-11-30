@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 
@@ -9,17 +10,18 @@ from rest_framework.views import APIView
 from rest_framework import generics, mixins
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated,IsAuthenticatedOrReadOnly 
-from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
+from rest_framework.throttling import UserRateThrottle, AnonRateThrottle, ScopedRateThrottle
 
 from watchlist_app.api.permissions import IsAdminorReadOnly, IsReviewUserorReadOnly
 from watchlist_app.models import Review, Watchlist, StreamPlatform
 from watchlist_app.api.serializers import WatchlistSerializer,StreamPlatformSerializer, ReviewSerializer
-
+from watchlist_app.api.throttling import ReviewCreateThrottle, ReviewListThrottle
 
 
 class ReviewCreate(generics.CreateAPIView):
     serializer_class = ReviewSerializer
     permission_classes = [IsAuthenticated]
+    throttle_classes = [ReviewCreateThrottle]
 
     def get_queryset(self):
         return Review.objects.all()
@@ -47,7 +49,8 @@ class ReviewCreate(generics.CreateAPIView):
 class ReviewList(generics.ListAPIView):
     serializer_class = ReviewSerializer
     permission_classes = [IsAuthenticated]
-    throttle_classes = [UserRateThrottle, AnonRateThrottle]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'review-list'
 
     def get_queryset(self):
         pk = self.kwargs['pk']
@@ -57,7 +60,8 @@ class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     permission_classes = [IsReviewUserorReadOnly]
-    throttle_classes = [UserRateThrottle, AnonRateThrottle]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'review-detail'
 
 class StreamPlatformVS(viewsets.ModelViewSet):
     queryset = StreamPlatform.objects.all()
