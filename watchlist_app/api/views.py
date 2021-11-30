@@ -60,7 +60,7 @@ class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
 class StreamPlatformVS(viewsets.ModelViewSet):
     queryset = StreamPlatform.objects.all()
     serializer_class = StreamPlatformSerializer
-
+    permission_classes = [IsAdminorReadOnly]
 
 class StreamPlatformAV(APIView):
     permission_classes = [IsAdminorReadOnly]
