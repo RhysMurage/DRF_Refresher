@@ -2,7 +2,9 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
+from rest_framework import filters
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -17,6 +19,20 @@ from watchlist_app.models import Review, Watchlist, StreamPlatform
 from watchlist_app.api.serializers import WatchlistSerializer,StreamPlatformSerializer, ReviewSerializer
 from watchlist_app.api.throttling import ReviewCreateThrottle, ReviewListThrottle
 
+
+class UserReview(generics.ListAPIView):
+    serializer_class = ReviewSerializer
+    # permission_classes = [IsAuthenticated]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'review-list'
+
+    # def get_queryset(self):
+    #     username = self.kwargs['username']
+    #     return Review.objects.filter(review_user__username=username)
+
+    def get_queryset(self):
+        username = self.request.query_params.get('username', None)
+        return Review.objects.filter(review_user__username=username)
 
 class ReviewCreate(generics.CreateAPIView):
     serializer_class = ReviewSerializer
@@ -48,9 +64,10 @@ class ReviewCreate(generics.CreateAPIView):
 
 class ReviewList(generics.ListAPIView):
     serializer_class = ReviewSerializer
-    permission_classes = [IsAuthenticated]
-    throttle_classes = [ScopedRateThrottle]
-    throttle_scope = 'review-list'
+    # permission_classes = [IsAuthenticated]
+    throttle_classes = [ReviewListThrottle,AnonRateThrottle]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['review_user__username', 'active']
 
     def get_queryset(self):
         pk = self.kwargs['pk']
@@ -109,7 +126,14 @@ class StreamPlatformDetailAV(APIView):
         platform = StreamPlatform.objects.get(pk=pk)
         platform.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-        
+
+class WatchList(generics.ListAPIView):
+    queryset = Watchlist.objects.all()
+    serializer_class = WatchlistSerializer
+    # permission_classes = [IsAuthenticated]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['title','platform__name']
+
 
 class WatchListAV(APIView):
     permission_classes = [IsAdminorReadOnly]
